@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🎣 Рыболовные магазины Риги — Микроджиг на голавля</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d1117;color:#e6edf3;overflow:hidden}
+#header{background:linear-gradient(135deg,#0d2137 0%,#1a3a5c 100%);padding:12px 16px;border-bottom:2px solid #2ea8e0;display:flex;align-items:center;gap:10px;position:relative;z-index:1000}
+#header h1{font-size:16px;color:#fff;font-weight:700;line-height:1.2}
+#header p{font-size:11px;color:#8b9dc3;margin-top:2px}
+.fish-icon{font-size:28px}
+#map{height:calc(100vh - 68px);width:100%}
+.leaflet-popup-content-wrapper{background:#161b22;border:1px solid #30363d;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.6);padding:0;overflow:hidden}
+.leaflet-popup-content{margin:0;min-width:270px;max-width:300px}
+.leaflet-popup-tip{background:#161b22}
+.popup-head{padding:12px 14px 10px;border-bottom:1px solid #21262d}
+.popup-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px}
+.popup-addr{font-size:11px;color:#8b9dc3}
+.popup-body{padding:10px 14px}
+.info-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;font-size:12px}
+.info-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.info-label{color:#8b9dc3;font-weight:600;min-width:70px}
+.info-val{color:#e6edf3;flex:1}
+.rating-val{color:#e3b341;font-weight:700}
+.dist-val{background:#21262d;border:1px solid #30363d;padding:1px 7px;border-radius:8px;font-size:11px;color:#8b9dc3}
+.gear-section{margin:8px 0}
+.gear-title{font-size:10px;color:#8b9dc3;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.gear-tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{padding:3px 8px;border-radius:8px;font-size:11px;font-weight:600;background:#1a4731;color:#3fb950;border:1px solid #238636}
+.review{font-size:11px;color:#8b9dc3;font-style:italic;border-left:3px solid #2ea8e0;padding:6px 8px;margin:8px 0;background:#0d1117;border-radius:0 6px 6px 0;line-height:1.5}
+.popup-footer{padding:0 14px 12px;display:flex;gap:8px}
+.btn{flex:1;padding:8px 0;border-radius:8px;font-size:12px;font-weight:700;text-align:center;text-decoration:none;display:block}
+.btn-map{background:#238636;color:#fff}
+.btn-site{background:#1f6feb;color:#fff}
+.rating-stars{color:#e3b341;font-size:13px}
+.leaflet-tooltip{background:#161b22;border:1px solid #30363d;color:#e6edf3;font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.leaflet-tooltip::before{border-top-color:#30363d}
+</style>
+</head>
+<body>
+<div id="header">
+  <div class="fish-icon">🎣</div>
+  <div><h1>Рыболовные магазины Риги</h1><p>Микроджиг &amp; оснастка на голавля · Нажми на маркер</p></div>
+</div>
+<div id="map"></div>
+<script>
+var map=L.map('map',{zoomControl:true}).setView([56.946,24.105],12);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:19}).addTo(map);
+function icon(c){return L.divIcon({className:'',html:'<div style="width:36px;height:36px;background:'+c+';border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.6)"></div>',iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-38]});}
+var shops=[
+{name:'VISS SPININGAM',sub:'Profi Tackle — спец. спиннинг',lat:56.9318,lng:24.0773,addr:'Цепля 22Б-5, 2 этаж, LV-1004',phone:'+371 26303695',hours:'Пн–Пт: 10–18 / Сб: 10–14 / Вс: вых.',dist:'3.2 км',rating:'4.9',ratingS:'★★★★★',site:'https://www.profitackle.lv/ru',maps:'https://maps.apple.com/?address=%D0%A6%D0%B5%D0%BF%D0%BB%D1%8F+22%D0%91,+%D0%A0%D0%B8%D0%B3%D0%B0&ll=56.9318,24.0773&q=VISS+SPININGAM',review:'Лучший выбор для микроджига в Риге. Огромный выбор силикона, чебурашек 0.5–5г, ультралайт спиннинги. Есть редкие позиции для голавля.',color:'#2ea8e0'},
+{name:'Gards',sub:'ТЦ Maxima Mūkusalas iela 73',lat:56.9307,lng:24.1020,addr:'Mūkusalas iela 73, ТЦ Maxima',phone:'+371 67747892',hours:'Пн–Вс: 10:00–20:00',dist:'2.1 км',rating:'4.4',ratingS:'★★★★☆',site:'https://www.gards.lv/ru',maps:'https://maps.apple.com/?address=M%C5%ABkusalas+iela+73,+R%C4%ABga&ll=56.9307,24.1020&q=Gards',review:'Крупнейшая сеть Латвии. Широкий ассортимент по доступным ценам — грузила, джиг-головки, силикон, спиннинги.',color:'#3fb950'},
+{name:'Salmo',sub:'Piedrujas iela 5D',lat:56.9412,lng:24.1821,addr:'Piedrujas iela 5D, Рига',phone:'+371 29120826',hours:'Пн–Пт: 9–19 / Сб: 9–17 / Вс: 10–17',dist:'6.8 км',rating:'4.5',ratingS:'★★★★½',site:'https://salmo.lv/ru',maps:'https://maps.apple.com/?address=Piedrujas+iela+5D,+R%C4%ABga&ll=56.9412,24.1821&q=Salmo',review:'Фирменный магазин. Приманки Lucky John, Savage Gear, микроджиговый силикон Mebaru. Собственные бренды по хорошим ценам.',color:'#e3b341'},
+{name:'Fishman.lv',sub:'Интернет-магазин, выдача Kurbada 3',lat:56.9477,lng:24.1653,addr:'Kurbada iela 3 (пункт выдачи)',phone:'+371 29626654',hours:'Заказ онлайн 24/7 · Выдача в раб. дни',dist:'5.4 км',rating:'4.7',ratingS:'★★★★★',site:'https://fishman.lv',maps:'https://maps.apple.com/?address=Kurbada+iela+3,+R%C4%ABga&ll=56.9477,24.1653&q=Fishman',review:'Большой выбор по доступным ценам — Mepps, Savage Gear, Owner. Микроджиговый силикон, вертушки и колебалки для голавля.',color:'#f78166'},
+{name:'Gunmarket EU',sub:'Охота и рыбалка, Maskavas 243',lat:56.9148,lng:24.1512,addr:'Maskavas iela 243, LV-1003',phone:'+371 29415818',hours:'Пн–Пт: 10–19 / Сб: 10–16 / Вс: закр.',dist:'4.3 км',rating:'4.2',ratingS:'★★★★☆',site:'https://www.gunmarket.eu',maps:'https://maps.apple.com/?address=Maskavas+iela+243,+R%C4%ABga&ll=56.9148,24.1512&q=Gunmarket',review:'Магазин охотника и рыбака. Есть спиннинги, катушки, грузила и силикон. Рыболовный раздел менее специализирован.',color:'#bc8cff'}
+];
+var gear=['Спиннинг','Катушка','Силикон','Джиг-гол.','Грузила'];
+shops.forEach(function(s){
+var tags=gear.map(function(g){return '<span class="tag">✓ '+g+'</span>';}).join('');
+var popup='<div class="popup-head"><div class="popup-name">'+s.name+'</div><div class="popup-addr">'+s.sub+'</div></div>'
++'<div class="popup-body">'
++'<div class="info-row"><span class="info-icon">📍</span><span class="info-val">'+s.addr+'</span></div>'
++'<div class="info-row"><span class="info-icon">📞</span><span class="info-val">'+s.phone+'</span></div>'
++'<div class="info-row"><span class="info-icon">🕐</span><span class="info-val">'+s.hours+'</span></div>'
++'<div class="info-row"><span class="info-icon">📏</span><span class="info-val"><span class="dist-val">'+s.dist+' от центра</span></span></div>'
++'<div class="info-row"><span class="info-icon">⭐</span><span class="info-val rating-val">'+s.rating+' '+s.ratingS+'</span></div>'
++'<div class="gear-section"><div class="gear-title">Товары для микроджига</div><div class="gear-tags">'+tags+'</div></div>'
++'<div class="review">'+s.review+'</div>'
++'</div>'
++'<div class="popup-footer"><a href="'+s.maps+'" class="btn btn-map">🗺 Apple Maps</a><a href="'+s.site+'" target="_blank" class="btn btn-site">🌐 Сайт</a></div>';
+L.marker([s.lat,s.lng],{icon:icon(s.color)}).addTo(map).bindPopup(popup,{maxWidth:310,className:'custom-popup'}).bindTooltip(s.name,{permanent:true,direction:'top',offset:[0,-40]});
+});
+L.marker([56.946,24.1059],{icon:L.divIcon({className:'',html:'<div style="width:12px;height:12px;background:#fff;border-radius:50%;border:2px solid #2ea8e0;box-shadow:0 0 12px #2ea8e0"></div>',iconSize:[12,12],iconAnchor:[6,6]})}).addTo(map).bindTooltip('Центр Риги',{permanent:false});
+</script>
+</body>
+</html>
